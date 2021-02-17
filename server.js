@@ -30,6 +30,9 @@ app.use("/uploads", express.static(__dirname + "/uploads"));
 app.use("/users", userRoutes);
 app.use("/seeds", seedRoutes);
 app.use("/images", imageRoutes);
+app.get("/", (req, res) => {
+  res.send("Hello world");
+});
 
 // HANDLE ERRORS PASSED THROUGH NEXT
 app.use(handleError);
