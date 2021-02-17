@@ -1,15 +1,15 @@
-const HttpError = require('../utils/HttpError');
-const Seed = require('../models/Seed');
-const { validationResult } = require('express-validator');
+const HttpError = require("../utils/HttpError");
+const Seed = require("../models/Seed");
+const { validationResult } = require("express-validator");
 
 const filterSeeds = async (req, res, next) => {
   try {
     if (!req.body) {
-      return next(new httpError('No search query given', 400));
+      return next(new httpError("No search query given", 400));
     }
 
     const seeds = await Seed.fuzzySearch(req.body.query)
-      .select('-name_fuzzy -scientificName_fuzzy')
+      .select("-name_fuzzy -scientificName_fuzzy")
       .then((seeds) => {
         return seeds.filter((seed) => seed._doc.confidenceScore >= 6);
       });
@@ -21,14 +21,16 @@ const filterSeeds = async (req, res, next) => {
 
 const getCartItems = async (req, res, next) => {
   try {
-    console.log('body', req.body);
+    console.log("body", req.body);
     if (!req.body) {
-      return next(new httpError('No cart items given to find', 404));
+      return next(new httpError("No cart items given to find", 404));
     }
 
     const ids = Object.keys(req.body);
 
-    const seeds = await Seed.find({ _id: ids });
+    const seeds = await Seed.find({ _id: ids }).select(
+      "-name_fuzzy -scientificName_fuzzy"
+    );
 
     res.json({ seeds });
   } catch (error) {
@@ -46,7 +48,7 @@ const createSeed = async (req, res, next) => {
     let seed = await Seed.findOne({ name: req.body.name });
 
     if (seed) {
-      return next(new HttpError('Seed name must be unique', 404));
+      return next(new HttpError("Seed name must be unique", 404));
     }
 
     seed = new Seed({
@@ -69,10 +71,10 @@ const createSeed = async (req, res, next) => {
 
 const getSeeds = async (req, res, next) => {
   try {
-    const seeds = await Seed.find();
+    const seeds = await Seed.find().select("-name_fuzzy -scientificName_fuzzy");
 
     if (!seeds) {
-      return next(new HttpError('No seeds found in database', 404));
+      return next(new HttpError("No seeds found in database", 404));
     }
 
     return res.json({ seeds });
