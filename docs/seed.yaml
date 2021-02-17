@@ -1,0 +1,33 @@
+components:
+  tags:
+    name: Seeds
+    description: Seeds API for seedly app
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      in: header
+      bearerFormat: JWT
+  schemas:
+    Seed:
+      type: object
+      required:
+        - name
+        - scientificName
+        - description
+        - imageUrl
+        - user
+      properties:
+        name:
+          type: string
+          description: The name of the user
+        email:
+          type: string
+          description: Unique email of particular user
+        password:
+          type: string
+          description: Hashed password of user
+      example:
+        name: Rynhardt Smith
+        email: rynhardt.smith@gmail.com
+        password: test123
