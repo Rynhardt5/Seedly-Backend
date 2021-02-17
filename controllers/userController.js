@@ -1,7 +1,7 @@
-const User = require('../models/User');
-const HttpError = require('../utils/HttpError');
-const mailer = require('../config/mailer');
-const { validationResult } = require('express-validator');
+const User = require("../models/User");
+const HttpError = require("../utils/HttpError");
+const mailer = require("../config/mailer");
+const { validationResult } = require("express-validator");
 
 const registerUser = async (req, res, next) => {
   const errors = validationResult(req);
@@ -14,7 +14,7 @@ const registerUser = async (req, res, next) => {
 
     if (user) {
       return next(
-        new HttpError('User already exist please try logging in instead', 422)
+        new HttpError("User already exist please try logging in instead", 422)
       );
     }
 
@@ -42,7 +42,7 @@ const logUserIn = async (req, res, next) => {
     const user = await User.findOne({ email: req.body.email });
 
     if (!user) {
-      return next(new HttpError('No users found in database', 404));
+      return next(new HttpError("No users found in database", 404));
     }
 
     const passwordValid = await user.comparePasswords(req.body.password);
@@ -63,10 +63,10 @@ const logUserIn = async (req, res, next) => {
 
 const currentUser = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user.id).select("-password");
 
     if (!user) {
-      return next(new HttpError('No user found in database with that id', 404));
+      return next(new HttpError("No user found in database with that id", 404));
     }
 
     return res.json({ user });
@@ -77,13 +77,13 @@ const currentUser = async (req, res, next) => {
 
 const getAllUsers = async (req, res, next) => {
   try {
-    const users = await User.find().select('-password -email');
+    const users = await User.find().select("-password -email");
 
     if (users.length !== 0) {
       return res.json({ users });
     }
 
-    return next(new HttpError('No users found in database', 404));
+    return next(new HttpError("No users found in database", 404));
   } catch (error) {
     next(error);
   }
@@ -91,10 +91,10 @@ const getAllUsers = async (req, res, next) => {
 
 const getUserById = async (req, res, next) => {
   try {
-    const user = await User.findById(req.params.id).select('-password -email');
+    const user = await User.findById(req.params.id).select("-password -email");
 
     if (!user) {
-      return next(new HttpError('No users found in database', 404));
+      return next(new HttpError("No users found in database", 404));
     }
 
     return res.json({ user });
@@ -109,7 +109,7 @@ const resetPasswordByEmail = async (req, res, next) => {
 
     if (!user) {
       return next(
-        new HttpError('No users found in database with that email', 404)
+        new HttpError("No users found in database with that email", 404)
       );
     }
 
@@ -118,10 +118,10 @@ const resetPasswordByEmail = async (req, res, next) => {
     await user.save();
 
     mailer({
-      from: 'rynhardt.smith@gmail.com',
+      from: "rynhardt.smith@gmail.com",
       to: user.email,
-      subject: 'Password reset request from seedly',
-      html: `Click on the following link to reset your password, please note that this reset token expires in an hour  <a href="http://localhost:3000/password/reset/${token}/${user.id}">Reset Password</a>`,
+      subject: "Password reset request from seedly",
+      html: `Click on the following link to reset your password, please note that this reset token expires in an hour  <a href="${process.env.CLIENT_SERVER}/password/reset/${token}/${user.id}">Reset Password</a>`,
     });
 
     res.json({ passwordResetValid: true });
@@ -137,11 +137,11 @@ const resetPasswordByToken = async (req, res, next) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      return next(new HttpError('No user found with that email', 422));
+      return next(new HttpError("No user found with that email", 422));
     }
 
     if (user.resetPasswordToken.expiresIn < Date.now()) {
-      return next(new HttpError('Reset password token expired', 422));
+      return next(new HttpError("Reset password token expired", 422));
     }
 
     const tokenMatches = await user.compareResetToken(
@@ -150,7 +150,7 @@ const resetPasswordByToken = async (req, res, next) => {
     );
 
     if (!tokenMatches) {
-      return next(new HttpError('Reset password token invalid', 422));
+      return next(new HttpError("Reset password token invalid", 422));
     }
 
     user.password = req.body.password;
